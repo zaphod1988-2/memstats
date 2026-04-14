@@ -2,11 +2,17 @@ import os
 from flask import Flask,Response
 import threading
 import time
+from cheroot import wsgi
+
+app = Flask(__name__)
 
 class Storage:
     '''Exports statistics for root partition'''
     def __init__(self):
-        stat = os.statvfs("/")
+        try:
+            stat = os.statvfs("/")
+        except Exception as e:
+            print(f"Error updating metrics: {e}")
         self.__total = stat.f_frsize * stat.f_blocks
         self.__free = stat.f_frsize * stat.f_bfree
 
@@ -19,11 +25,14 @@ class Storage:
 class RAM:
     '''Exports RAM statistics'''
     def __init__(self):
-        page_size = os.sysconf("SC_PAGE_SIZE")
-        phys_pages = os.sysconf("SC_PHYS_PAGES")
-        avail_pages = os.sysconf("SC_AVPHYS_PAGES")
-        self.__total_ram = page_size * phys_pages
-        self.__free_ram = page_size * avail_pages
+        try: 
+            page_size = os.sysconf("SC_PAGE_SIZE")
+            phys_pages = os.sysconf("SC_PHYS_PAGES")
+            avail_pages = os.sysconf("SC_AVPHYS_PAGES")
+            self.__total_ram = page_size * phys_pages
+            self.__free_ram = page_size * avail_pages
+        except Exception as e:
+            print(f"Error updating metrics: {e}")
 
     def get_free(self):
         return self.__free_ram
@@ -31,9 +40,8 @@ class RAM:
     def get_total(self):
         return self.__total_ram
     
-class Webserver:
+class Metrics:
     def __init__(self):
-        self.counter = 0
         self.update_once()
 
     def update_once(self):
@@ -46,32 +54,42 @@ class Webserver:
 
     def update_loop(self):
         while True:
-            self.counter += 1
             self.update_once()
             time.sleep(1)
 
+@app.route("/metrics")
+def metrics_endpoint():
+        data = (
+        "# HELP custom_computer_free_ram_bytes Free RAM in bytes\n"
+        "# TYPE custom_computer_free_ram_bytes gauge\n"
+        f"custom_computer_free_ram_bytes {metrics.free_ram}\n"
+        "# HELP custom_computer_total_ram_bytes Total RAM in bytes\n"
+        "# TYPE custom_computer_total_ram_bytes gauge\n"
+        f"custom_computer_total_ram_bytes {metrics.total_ram}\n"
+        "# HELP custom_computer_free_storage_bytes Free disk in bytes\n"
+        "# TYPE custom_computer_free_storage_bytes gauge\n"
+        f"custom_computer_free_storage_bytes {metrics.free_storage}\n"
+        "# HELP custom_computer_total_storage_bytes Total disk in bytes\n"
+        "# TYPE custom_computer_total_storage_bytes gauge\n"
+        f"custom_computer_total_storage_bytes {metrics.total_storage}\n"
+    )
+        return Response(data, content_type="text/plain; version=0.0.4; charset=utf-8")
+
 if __name__ == "__main__":
-    app = Flask(__name__)
+    
+  
 
-    @app.route("/metrics")
-    def home():
-        data = f"""         
-# TYPE custom_computer_free_ram_bytes gauge
-# HELP custom_computer_free_ram_bytes Number of bytes of free RAM on this machine
-custom_computer_free_ram_bytes {server.free_ram}
-# HELP custom_computer_total_ram_bytes Number of bytes of total RAM on this machine
-# TYPE custom_computer_total_ram_bytes gauge
-custom_computer_total_ram_bytes {server.total_ram}
-# HELP custom_computer_free_storage_bytes Number of bytes of free storage on root partition
-# TYPE custom_computer_free_storage_bytes gauge
-custom_computer_free_storage_bytes {server.free_storage}
-# HELP custom_computer_total_storage_bytes Number of bytes of total storage on root partition
-# TYPE custom_computer_total_storage_bytes gauge
-custom_computer_total_storage_bytes {server.total_storage}           
-            """
-        return Response(data, mimetype="text/plain; version=0.0.4; charset=utf-8")
+    metrics = Metrics()
+    # Debug:
+    # threading.Thread(target=metrics.update_loop, daemon=True).start()
+    # app.run(host="0.0.0.0", port=8000, debug=False)
 
-
-    server = Webserver()
-    threading.Thread(target=server.update_loop, daemon=True).start()
-    app.run(host="0.0.0.0", port=8000, debug=False)
+    # Prod:
+    threading.Thread(target=metrics.update_loop, daemon=True).start()
+    wsgi_server = wsgi.Server(("0.0.0.0", 8000), app)
+    print("Starting WSGI server on http://0.0.0.0:8000/metrics")
+    try:
+        wsgi_server.start()
+    finally:
+        wsgi_server.stop()
+    
