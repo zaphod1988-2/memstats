@@ -1,0 +1,10 @@
+services:
+  memstats-exporter:
+    build: .
+    container_name: memstats-exporter
+    ports:
+      - "8000:8000"
+    volumes:
+      - "/:/host:ro"
+      - "/proc:/host/proc:ro"
+    restart: unless-stopped
