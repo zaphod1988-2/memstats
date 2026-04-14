@@ -11,11 +11,13 @@ class Storage:
     '''Exports statistics for root partition'''
     def __init__(self):
         try:
-            stat = os.statvfs("/")
+            storage_info = psutil.disk_usage("/")
+            self.__total = storage_info.total
+            self.__free = storage_info.free
         except Exception as e:
             print(f"Error updating metrics: {e}")
-        self.__total = stat.f_frsize * stat.f_blocks
-        self.__free = stat.f_frsize * stat.f_bfree
+
+
 
     def get_free(self):
         return self.__free
@@ -26,17 +28,13 @@ class Storage:
 class RAM:
     '''Exports RAM statistics'''
     def __init__(self):
-        # try: 
-        #     page_size = os.sysconf("SC_PAGE_SIZE")
-        #     phys_pages = os.sysconf("SC_PHYS_PAGES")
-        #     avail_pages = os.sysconf("SC_AVPHYS_PAGES")
-        #     self.__total_ram = page_size * phys_pages
-        #     self.__free_ram = page_size * avail_pages
-        # except Exception as e:
-        #     print(f"Error updating metrics: {e}")
-        ram_info = psutil.virtual_memory()
-        self.__free_ram = ram_info.available
-        self.__total_ram = ram_info.total
+        try: 
+            ram_info = psutil.virtual_memory()
+            self.__free_ram = ram_info.available
+            self.__total_ram = ram_info.total
+        except Exception as e:
+            print(f"Error updating metrics: {e}")
+
 
     def get_free(self):
         return self.__free_ram

@@ -11,11 +11,13 @@ class Storage:
     '''Exports statistics for root partition'''
     def __init__(self):
         try:
-            stat = os.statvfs("/host")
+            storage_info = psutil.disk_usage("/host")
+            self.__total = storage_info.total
+            self.__free = storage_info.free
         except Exception as e:
             print(f"Error updating metrics: {e}")
-        self.__total = stat.f_frsize * stat.f_blocks
-        self.__free = stat.f_frsize * stat.f_bfree
+
+        
 
     def get_free(self):
         return self.__free
@@ -25,22 +27,15 @@ class Storage:
 
 class RAM:
     '''Exports RAM statistics'''
-    def __init__(self, meminfo_path="/host/proc/meminfo"):
-        # try: 
-        #     values = {}
-        #     with open(meminfo_path, "r", encoding="utf-8") as f:
-        #         for line in f:
-        #             key, value = line.split(":", 1)
-        #             values[key] = value.strip()
+    def __init__(self):
+        try: 
+            psutil.PROCFS_PATH = "/host/proc"
+            ram_info = psutil.virtual_memory()
+            self.__free_ram = ram_info.available
+            self.__total_ram = ram_info.total
+        except Exception as e:
+            print(f"Error updating metrics: {e}")
 
-        #     self.__total_ram = int(values["MemTotal"].split()[0]) * 1024
-        #     self.__free_ram = int(values["MemAvailable"].split()[0]) * 1024
-        # except Exception as e:
-        #     print(f"Error updating metrics: {e}")
-        psutil.PROCFS_PATH = "/host/proc"
-        ram_info = psutil.virtual_memory()
-        self.__free_ram = ram_info.available
-        self.__total_ram = ram_info.total
 
 
     def get_free(self):
