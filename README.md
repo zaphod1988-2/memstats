@@ -1,2 +1,12 @@
 # memstats
-A very simple Docker scape target for Prometheus exporting free/total RAM and free/total storage on the root partition.
+A very simple Docker scrape target for Prometheus exporting free/total RAM and free/total storage on the root partition.
+
+Usage:
+
+
+```
+git clone https://github.com/zaphod1988-2/memstats
+docker compose up --build -d
+curl http://localhost:8000/metrics
+
+```
