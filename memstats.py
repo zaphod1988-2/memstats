@@ -86,8 +86,8 @@ if __name__ == "__main__":
 
     # Prod:
     threading.Thread(target=metrics.update_loop, daemon=True).start()
-    wsgi_server = wsgi.Server(("0.0.0.0", 8000), app)
-    print("Starting WSGI server on http://0.0.0.0:8000/metrics")
+    wsgi_server = wsgi.Server(("0.0.0.0", 9500), app)
+    print("Starting WSGI server on http://0.0.0.0:9500/metrics")
     try:
         wsgi_server.start()
     finally:

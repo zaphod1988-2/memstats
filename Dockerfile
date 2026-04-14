@@ -5,10 +5,12 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir flask
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY memstats.py /app/memstats.py
 
-EXPOSE 8000
+EXPOSE 9500
 
 CMD ["python", "memstats.py"]

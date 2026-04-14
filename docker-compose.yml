@@ -3,7 +3,7 @@ services:
     build: .
     container_name: memstats-exporter
     ports:
-      - "8000:8000"
+      - "9500:9500"
     volumes:
       - "/:/host:ro"
       - "/proc:/host/proc:ro"

@@ -7,6 +7,6 @@ Usage:
 ```
 git clone https://github.com/zaphod1988-2/memstats
 docker compose up --build -d
-curl http://localhost:8000/metrics
+curl http://localhost:9500/metrics
 
 ```
