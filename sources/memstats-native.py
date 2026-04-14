@@ -1,4 +1,3 @@
-import os
 from flask import Flask,Response
 import threading
 import time
