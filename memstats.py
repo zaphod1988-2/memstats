@@ -3,6 +3,7 @@ from flask import Flask,Response
 import threading
 import time
 from cheroot import wsgi
+import psutil
 
 app = Flask(__name__)
 
@@ -25,17 +26,22 @@ class Storage:
 class RAM:
     '''Exports RAM statistics'''
     def __init__(self, meminfo_path="/host/proc/meminfo"):
-        try: 
-            values = {}
-            with open(meminfo_path, "r", encoding="utf-8") as f:
-                for line in f:
-                    key, value = line.split(":", 1)
-                    values[key] = value.strip()
+        # try: 
+        #     values = {}
+        #     with open(meminfo_path, "r", encoding="utf-8") as f:
+        #         for line in f:
+        #             key, value = line.split(":", 1)
+        #             values[key] = value.strip()
 
-            self.__total_ram = int(values["MemTotal"].split()[0]) * 1024
-            self.__free_ram = int(values["MemAvailable"].split()[0]) * 1024
-        except Exception as e:
-            print(f"Error updating metrics: {e}")
+        #     self.__total_ram = int(values["MemTotal"].split()[0]) * 1024
+        #     self.__free_ram = int(values["MemAvailable"].split()[0]) * 1024
+        # except Exception as e:
+        #     print(f"Error updating metrics: {e}")
+        psutil.PROCFS_PATH = "/host/proc"
+        ram_info = psutil.virtual_memory()
+        self.__free_ram = ram_info.available
+        self.__total_ram = ram_info.total
+
 
     def get_free(self):
         return self.__free_ram

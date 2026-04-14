@@ -3,6 +3,7 @@ from flask import Flask,Response
 import threading
 import time
 from cheroot import wsgi
+import psutil
 
 app = Flask(__name__)
 
@@ -25,14 +26,17 @@ class Storage:
 class RAM:
     '''Exports RAM statistics'''
     def __init__(self):
-        try: 
-            page_size = os.sysconf("SC_PAGE_SIZE")
-            phys_pages = os.sysconf("SC_PHYS_PAGES")
-            avail_pages = os.sysconf("SC_AVPHYS_PAGES")
-            self.__total_ram = page_size * phys_pages
-            self.__free_ram = page_size * avail_pages
-        except Exception as e:
-            print(f"Error updating metrics: {e}")
+        # try: 
+        #     page_size = os.sysconf("SC_PAGE_SIZE")
+        #     phys_pages = os.sysconf("SC_PHYS_PAGES")
+        #     avail_pages = os.sysconf("SC_AVPHYS_PAGES")
+        #     self.__total_ram = page_size * phys_pages
+        #     self.__free_ram = page_size * avail_pages
+        # except Exception as e:
+        #     print(f"Error updating metrics: {e}")
+        ram_info = psutil.virtual_memory()
+        self.__free_ram = ram_info.available
+        self.__total_ram = ram_info.total
 
     def get_free(self):
         return self.__free_ram
