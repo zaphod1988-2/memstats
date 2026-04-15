@@ -10,7 +10,7 @@ class Storage:
     '''Exports statistics for root partition'''
     def __init__(self):
         try:
-            storage_info = psutil.disk_usage("/host")
+            storage_info = psutil.disk_usage("/filesystem")
             self.__total = storage_info.total
             self.__free = storage_info.free
         except Exception as e:

@@ -5,6 +5,6 @@ services:
     ports:
       - "9500:9500"
     volumes:
-      - "/:/host:ro"
+      - "/:/filesystem:ro"
       - "/proc:/host/proc:ro"
     restart: unless-stopped
