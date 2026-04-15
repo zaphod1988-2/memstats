@@ -21,7 +21,7 @@ custom_computer_total_storage_bytes
 ```
 
 I use it to fill the Proxmox Prometheus Dashboard (https://grafana.com/grafana/dashboards/10347-proxmox-via-prometheus/)
-with additional information for my QEMU VMs as Proxmox is exporting false data (or in case of disk usage no data at all.)
+with additional information for my QEMU VMs as Proxmox is exporting false data (or in case of disk usage no data at all.) and without the need of the full-grown node exporter.
 
 You will have to map the Proxmox exporter and the memstats data accordingly. Most important thing there is the id mapping to be able to match PVE and memstats data.
 
