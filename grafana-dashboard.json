@@ -382,7 +382,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (id) (pve_memory_size_bytes{instance=\"$instance\"} and on (id, instance) pve_guest_info{type=\"lxc\"})\r\nor\r\nsum by (id) (\r\n  custom_computer_total_ram_bytes \r\n  and on (id) pve_guest_info{type=\"qemu\"}\r\n)",
+          "expr": "sum by (id) (\r\n  custom_computer_total_ram_bytes \r\n  and on (id) pve_guest_info{type=\"qemu\"}\r\n)\r\nor\r\nsum by (id) (pve_memory_size_bytes{instance=\"$instance\"} and on (id, instance) pve_guest_info)",
           "format": "table",
           "instant": true,
           "legendFormat": "",
@@ -410,7 +410,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (id) (pve_disk_size_bytes{instance=\"$instance\"} and on (id, instance) pve_guest_info{type=\"lxc\"})\r\nor\r\nsum by (id) (\r\n   custom_computer_total_storage_bytes\r\n  and on (id) pve_guest_info{type=\"qemu\"}\r\n)",
+          "expr": "sum by (id) (\r\n   custom_computer_total_storage_bytes\r\n  and on (id) pve_guest_info{type=\"qemu\"}\r\n)\r\nor\r\nsum by (id) (pve_disk_size_bytes{instance=\"$instance\"} and on (id, instance) pve_guest_info)",
           "format": "table",
           "instant": true,
           "legendFormat": "",
@@ -1934,6 +1934,6 @@
   "timezone": "browser",
   "title": "VMs/Maschinen + Proxmox",
   "uid": "Dp7Cd57Zza",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }
